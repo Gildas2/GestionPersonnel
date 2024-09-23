@@ -7,7 +7,7 @@
             <h3 class="page-title">Jobs</h3>
             <ul class="breadcrumb">
               <li class="breadcrumb-item">
-                <a href="admin-dashboard.html">Dashboard</a>
+                <a>Dashboard</a>
               </li>
               <li class="breadcrumb-item active">Jobs</li>
             </ul>
@@ -15,19 +15,19 @@
         </div>
       </div>
 
-      <div class="row">
+      <div class="row" v-for="job in jobs" :key="job.id">
         <div class="col-md-8">
           <div class="job-info job-widget">
-            <h3 class="job-title">Android Developer</h3>
-            <span class="job-dept">App Development</span>
+            <h3 class="job-title">{{ job.title }}</h3>
+            <span class="job-dept">{{ job.departmentName }}</span>
             <ul class="job-post-det">
               <li>
-                <i class="fa-regular fa-calendar-days"></i> Post Date:
-                <span class="text-blue">Feb 18, 2019</span>
+                <i class="fa-regular fa-calendar-days"></i> Date de publication:
+                <span class="text-blue">{{ formatDate(job.startDate) }}</span>
               </li>
               <li>
-                <i class="fa-regular fa-calendar-days"></i> Last Date:
-                <span class="text-blue">May 31, 2019</span>
+                <i class="fa-regular fa-calendar-days"></i> Dernière date:
+                <span class="text-blue">{{ formatDate(job.expiredDate) }}</span>
               </li>
               <li>
                 <i class="fa-regular fa-user"></i> Applications:
@@ -40,105 +40,52 @@
             </ul>
           </div>
           <div class="job-content job-widget">
-            <div class="job-desc-title"><h4>Job Description</h4></div>
-            <div class="job-description">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum
-              </p>
+            <div class="job-desc-title">
+              <h4>Description de l'emploi</h4>
             </div>
-            <div class="job-desc-title"><h4>Job Description</h4></div>
             <div class="job-description">
-              <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
-                eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut
-                enim ad minim veniam, quis nostrud exercitation ullamco laboris
-                nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor
-                in reprehenderit in voluptate velit esse cillum dolore eu fugiat
-                nulla pariatur. Excepteur sint occaecat cupidatat non proident,
-                sunt in culpa qui officia deserunt mollit anim id est laborum
-              </p>
-              <ul class="square-list">
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-                <li>
-                  Lorem ipsum dolor sit amet, consectetur adipiscing elit.
-                </li>
-              </ul>
+              <p>{{ job.description }}</p>
             </div>
           </div>
         </div>
         <div class="col-md-4">
           <div class="job-det-info job-widget">
-            <a
-              class="btn job-btn"
-              href="job-view.html#"
-              data-bs-toggle="modal"
-              data-bs-target="#apply_job"
-              >Apply For This Job</a
-            >
+            <a class="btn job-btn" data-bs-toggle="modal" data-bs-target="#apply_job">Postuler pour cet emploi</a>
             <div class="info-list">
               <span><i class="fa-solid fa-chart-column"></i></span>
-              <h5>Job Type</h5>
-              <p>Full Time</p>
+              <h5>Type d'emploi</h5>
+              <p>{{ job.type }}</p>
             </div>
             <div class="info-list">
               <span><i class="fa-regular fa-money-bill-1"></i></span>
-              <h5>Salary</h5>
-              <p>$32k - $38k</p>
+              <h5>Salaire</h5>
+              <p>${{ job.salaryFrom }} - ${{ job.salaryTo }}</p>
             </div>
             <div class="info-list">
               <span><i class="fa-solid fa-suitcase"></i></span>
               <h5>Experience</h5>
-              <p>2 Years</p>
+              <p>{{ job.experience }} ans</p>
             </div>
             <div class="info-list">
               <span><i class="fa-solid fa-ticket"></i></span>
-              <h5>Vacancy</h5>
-              <p>5</p>
+              <h5>Poste vacant</h5>
+              <p>{{ job.noOfVacancies }}</p>
             </div>
             <div class="info-list">
               <span><i class="fa-solid fa-signs-post"></i></span>
-              <h5>Location</h5>
+              <h5>Situation géographique</h5>
               <p>
-                Dreamguy's Technologies <br />
-                3864 Quiet Valley Lane, <br />
-                Sherman Oaks, <br />
-                California, 91403
+                {{ job.location }}
               </p>
             </div>
             <div class="info-list">
               <p>
-                818-978-7102 <br />
-                <a
-                  href="https://smarthr.dreamstechnologies.com/cdn-cgi/l/email-protection"
-                  class="__cf_email__"
-                  data-cfemail="cca8ada2a5a9a0bca3beb8a9be8ca9b4ada1bca0a9e2afa3a1"
-                  >[email&#160;protected]</a
-                >
                 <br />
-                https://www.example.com
+
               </p>
             </div>
             <div class="info-list text-center">
-              <a class="app-ends" href="job-view.html#"
-                >Application ends in 2d 7h 6m</a
-              >
+              <a class="app-ends">Fin de la candidature dans 2d 7h 6m</a>
             </div>
           </div>
         </div>
@@ -149,36 +96,35 @@
       <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title">Add Your Details</h5>
-            <button
-              type="button"
-              class="btn-close"
-              data-bs-dismiss="modal"
-              aria-label="Close"
-            >
-              <span aria-hidden="true">&times;</span>
-            </button>
+            <h5 class="modal-title">Ajoute tes détails</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close">  <span aria-hidden="true">&times;</span></button>
           </div>
           <div class="modal-body">
-            <form>
+            <form @submit.prevent="submitApplication">
               <div class="input-block mb-3">
-                <label class="col-form-label">Name</label>
-                <input class="form-control" type="text" />
+                <label class="col-form-label">Nom complet <span class="text-danger">*</span></label>
+                <input class="form-control" type="text" v-model="apply.name" required/>
               </div>
               <div class="input-block mb-3">
-                <label class="col-form-label">Email Address</label>
-                <input class="form-control" type="text" />
+                <label class="col-form-label">Addresse Email <span class="text-danger">*</span></label>
+                <input class="form-control" type="text" v-model="apply.email" required/>
+              </div>
+              <div class="input-block mb-3">
+                <label class="col-form-label">Numéro <span class="text-danger">*</span></label>
+                <input class="form-control" type="text" v-model="apply.phoneNumber" required/>
               </div>
               <div class="input-block mb-3">
                 <label class="col-form-label">Message</label>
-                <textarea class="form-control"></textarea>
+                <textarea class="form-control" v-model="apply.message"></textarea>
               </div>
               <div class="input-block mb-3">
-                <label class="col-form-label">Upload your CV</label>
-                <input type="file" class="form-control" id="cv_upload" />
+                <label class="col-form-label">Télécharger ton CV <span class="text-danger">*</span></label>
+                <input type="file" class="form-control" id="cv_upload" ref="cv_upload" required/>
               </div>
               <div class="submit-section">
-                <button class="btn btn-primary submit-btn">Submit</button>
+                <button class="btn btn-primary submit-btn" type="submit">
+                  Envoyer la candidature
+                </button>
               </div>
             </form>
           </div>
@@ -190,9 +136,61 @@
 
 <script>
 export default {
-  name: "jobView",
   data() {
-    return {};
+    return {
+      jobs: [],
+      apply: {
+        name: '',
+        email: '',
+        phoneNumber : '',
+        message: '',
+        file: null,
+      },
+    };
   },
+  methods: {
+    formatDate(date) {
+      const options = { day: 'numeric', month: 'short', year: 'numeric' };
+      const formattedDate = new Date(date).toLocaleDateString('fr-FR', options);
+
+      // Sépare la date pour mettre la première lettre du mois en majuscule
+      const dateParts = formattedDate.split(' ');
+      dateParts[1] = dateParts[1].charAt(0).toUpperCase() + dateParts[1].slice(1);
+
+      return dateParts.join(' ');
+    },
+    listJobs() {
+      this.$axios.get("job.php?action=listJobs")
+        .then((res) => {
+          if (!res.data.error) {
+            this.jobs = res.data.elements || [];
+          } else {
+            console.error("Erreur", res.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur lors du chargement des jobs", error);
+        });
+    },
+    submitApplication() {
+      const formData = new FormData();
+      formData.append('name', this.apply.name);
+      formData.append('email', this.apply.email);
+      formData.append('phoneNumber', this.apply.phoneNumber);
+      formData.append('message', this.apply.message);
+      formData.append('file', this.$refs.cv_upload.files[0]);
+
+      this.$axios.post('jobView.php?action=addApplicant', formData)
+        .then((response) => {
+          console.log('Application soumise avec succès', response);
+        })
+        .catch((error) => {
+          console.error('Erreur lors de la soumission de la demande', error);
+        });
+    }
+  },
+  mounted() {
+    this.listJobs();
+  }
 };
 </script>

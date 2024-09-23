@@ -19,29 +19,33 @@ $(document).ready(function() {
 	
 	// Sidebar
 	
-	var Sidemenu = function() {
-		this.$menuItem = $('#sidebar-menu a');
-	};
+	
 	function init() {
-		var $this = Sidemenu;
 		$('#sidebar-menu a').on('click', function(e) {
-			if($(this).parent().hasClass('submenu')) {
+			var $this = $(this);
+	
+			if ($this.parent().hasClass('submenu')) {
 				e.preventDefault();
 			}
-			if(!$(this).hasClass('subdrop')) {
-				$('ul', $(this).parents('ul:first')).hide(350);
-				$('a', $(this).parents('ul:first')).removeClass('subdrop');
-				$(this).next('ul').show(350);
-				$(this).addClass('subdrop');
-			} else if($(this).hasClass('subdrop')) {
-				$(this).removeClass('subdrop');
-				$(this).next('ul').hide(350);
+	
+			if (!$this.hasClass('subdrop')) {
+				// Cacher tous les sous-menus au même niveau
+				$this.parents('ul:first').find('ul').hide(350);
+				$this.parents('ul:first').find('a').removeClass('subdrop');
+				// Afficher le sous-menu suivant
+				$this.next('ul').show(350);
+				$this.addClass('subdrop');
+			} else {
+				// Cacher le sous-menu actuel
+				$this.removeClass('subdrop');
+				$this.next('ul').hide(350);
 			}
 		});
+	
+		// Activer le lien actif dans le menu
 		$('#sidebar-menu ul li.submenu a.active').parents('li:last').children('a:first').addClass('active').trigger('click');
-
-		
 	}
+	
 	
 	// Sidebar Initiate
 	init();
@@ -306,6 +310,8 @@ $(document).ready(function() {
 	
 	// Sidebar Slimscroll
 
+	var $slimScrolls = $('.slim-scroll');
+
 	if($slimScrolls.length > 0) {
 		$slimScrolls.slimScroll({
 			height: 'auto',
@@ -339,20 +345,7 @@ $(document).ready(function() {
 	
 	if($('.datetimepicker').length > 0) {
 		$('.datetimepicker').datetimepicker({
-			//format: 'DD/MM/YYYY',
-			format: 'DD-MM-YYYY',
-			icons: {
-				up: "fa fa-angle-up",
-				down: "fa-solid fa-angle-down",
-				next: 'fa-solid fa-angle-right',
-				previous: 'fa-solid fa-angle-left'
-			}
-		});
-	}
-
-	if($('.timepicker').length > 0) {
-		$('.timepicker').datetimepicker({
-			format: "hh:mm:ss",
+			format: 'DD/MM/YYYY',
 			icons: {
 				up: "fa fa-angle-up",
 				down: "fa-solid fa-angle-down",
@@ -622,11 +615,7 @@ $(document).ready(function() {
 			});
 		});
 	}	
-	
-	// $(document).on('click', '#customizer-layout02', function() {
-	// 	location.reload();
-	// });
-	
+
 	$(document).ready(function(){
 		$("#sidebar-size-compact").click(function(){            
 			$('html').attr("data-layout", "vertical");

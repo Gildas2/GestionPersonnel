@@ -15,7 +15,7 @@
         E,
         y,
         I,
-        z = document.querySelector(".sidebar").innerHTML,
+        z = document.querySelector(".sidebar"),
         l = localStorage.getItem("language");
     function r(a) {
         var b;
@@ -508,17 +508,6 @@
                         document.getElementById("sidebar-color-gradient").click();
                     });
             }),
-
-            // Array.from(document.querySelectorAll("[name='data-sidebar']")).forEach(function (a) {
-            //     document.querySelector("#collapseBgGradient .form-check input:checked")
-            //     ? document.querySelector("[data-bs-target='#collapseBgGradient']").classList.add("active")
-            //     : document.querySelector("[data-bs-target='#collapseBgGradient']").classList.remove("active")
-            //     a.addEventListener("change", function () {
-            //         document.querySelector("#collapseBgGradient .form-check input:checked")
-            //             ? document.querySelector("[data-bs-target='#collapseBgGradient']").classList.add("active")
-            //             : document.querySelector("[data-bs-target='#collapseBgGradient']").classList.remove("active");
-            //     });
-            // });
 
             Array.from(document.querySelectorAll("[name='data-sidebar']")).forEach(function (a) {
                 var collapseBgGradient = document.querySelector("[data-bs-target='#collapseBgGradient']");

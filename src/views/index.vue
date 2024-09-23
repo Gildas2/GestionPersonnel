@@ -8,14 +8,19 @@
               <h3 class="account-title">Connexion</h3>
               <p class="account-subtitle">Accéder au tableau de bord</p>
 
-              <form action="" method="POST">
+              <!-- Affichage des messages -->
+              <div v-if="message" :class="messageClass" class="mb-4">
+                {{ message }}
+              </div>
+
+              <form @submit.prevent="adLogin">
                 <div class="input-block mb-4">
                   <label class="col-form-label">Adresse mail</label>
                   <input
                     class="form-control"
-                    type="text"
-                    name="email"
+                    type="email"
                     v-model="Admin.email"
+                    required
                   />
                 </div>
                 <div class="input-block mb-4">
@@ -24,38 +29,40 @@
                       <label class="col-form-label">Mot de passe</label>
                     </div>
                     <div class="col-auto">
-                      <a class="text-muted" href="forgot-password.html">
+                      <router-link
+                        class="text-muted"
+                        :to="{ name: 'forgotPassword' }"
+                      >
                         Mot de passe oublié?
-                      </a>
+                      </router-link>
                     </div>
                   </div>
                   <div class="position-relative">
                     <input
                       class="form-control"
-                      type="password"
-                      id="password"
+                      :type="passwordFieldType"
                       v-model="Admin.password"
-                      name="password"
+                      required
                     />
-                    <span
-                      class="fa-solid fa-eye-slash"
-                      id="toggle-password"
-                    ></span>
+                   <span
+                      class="fa"
+                      :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"
+                      @click="togglePasswordVisibility"
+                      style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"
+                    ></span> 
                   </div>
                 </div>
                 <div class="input-block mb-4 text-center">
-                  <router-link
-                    :to="{ name: 'dashboard' }"
-                    class="btn btn-primary account-btn"
-                    type="submit" @click.prevent="adLogin()"
-                    >Se connecter</router-link
-                  >
+                  <button class="btn btn-primary account-btn" type="submit">
+                    Se connecter
+                  </button>
                 </div>
                 <div class="account-footer">
                   <p>
-                    Vous n'avez pas encore de compte ?<router-link
-                      :to="{name : 'register'}">S'inscrire</router-link
-                    >
+                    Vous n'avez pas encore de compte ?
+                    <router-link :to="{ name: 'register' }">
+                      S'inscrire
+                    </router-link>
                   </p>
                 </div>
               </form>
@@ -68,39 +75,78 @@
 </template>
 
 <script>
-import axios from 'axios';
+import { useUserStore } from '../stores/authStore';
+
 export default {
   name: "index",
   data() {
-    return{
-      Admin : {
-        email : null,
-        password : null,
-      }
-    }
+    return {
+      Admin: {
+        email: null,
+        password: null,
+      },
+      showPassword: false,
+      message: '',
+      messageClass: '',
+    };
   },
-  methods : {
-    adLogin(){
-      if (!this.Admin.email || !this.Admin.password) {
-        alert('Veuillez remplir tous les champs.');
-        return;
-      }
-      var data = new FormData;
-      data.append('email',this.Admin.email);
-      data.append('password',this.Admin.password);
-      axios.get('http://localhost/Gestion_Personnel/src/Api/login.php?action=login',data).then((res)=>{
-        if(res.data.error){
-          console.log("Erreur", res.data);
-        }else{
-          console.log("réussie");
-          this.$router.push("/",res.data.message);
+  computed: {
+    passwordFieldType() {
+      return this.showPassword ? "text" : "password";
+    },
+  },
+  methods: {
+    togglePasswordVisibility() {
+      this.showPassword = !this.showPassword;
+    },
+    async adLogin() {
+      let data = new FormData();
+      data.append("email", this.Admin.email);
+      data.append("password", this.Admin.password);
+      data.append('action', 'login');
+
+      try {
+        const res = await this.$axios.post('index.php', data);
+
+        if (res.data.error) {
+          this.message = res.data.message;
+          this.messageClass = "alert alert-danger";
+        } else {
+          const userStore = useUserStore();
+          userStore.saveUser({
+            id: res.data.data.id,
+            email: this.Admin.email,
+            lastname: res.data.data.lastname, 
+            firstname: res.data.data.firstname,
+            gender : res.data.data.gender,
+            maritalStatus : res.data.data.maritalStatus,
+            old : res.data.data.old,
+            number : res.data.data.number,
+            csp : res.data.data.csp,
+            contract : res.data.data.contract,
+            level : res.data.data.level,
+            phoneNumber : res.data.data.phoneNumber,
+            nationality : res.data.data.nationality,
+            nameBank : res.data.data.nameBank,
+            nBank : res.data.data.nBank,
+            startDate : res.data.data.startDate,
+            religion : res.data.data.religion,
+            url : res.data.data.url,
+            role: res.data.data.role,
+            departmentName : res.data.data.departmentName,
+            posteName : res.data.data.posteName,
+
+          });
+
+          this.message = res.data.message;
+          this.messageClass = "alert alert-success";
+          this.$router.push({name : "dashboard"}).then(() => {window.location.reload()});
         }
-      }).catch((err) =>{
-        console.log("Erreur");
-      })
-    }
-  }
+      } catch (err) {
+        this.message = "Une erreur s'est produite lors de la connexion.";
+        this.messageClass = "alert alert-danger";
+      }
+    },
+  },
 };
 </script>
-
-<style scoped></style>

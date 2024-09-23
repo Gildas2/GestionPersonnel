@@ -178,8 +178,6 @@
 </template>
 
 <script>
-import axios from "axios";
-
 export default {
   name: "poste",
   data() {
@@ -206,9 +204,8 @@ export default {
       this.$router.push({ path: "/poste" });
     },
     getDepartments() {
-      axios
-        .get(
-          "http://localhost/GestionPersonnel/backend/departement.php?action=getDepartments"
+      this.$axios.post(
+          "departement.php?action=getDepartments"
         )
         .then((res) => {
           if (!res.data.error) {
@@ -246,9 +243,8 @@ export default {
 
       if (this.Admin.posteName != "" && this.Admin.departmentId != "") {
         if (this.modalType === "add") {
-          axios
-            .post(
-              "http://localhost/GestionPersonnel/backend/poste.php?action=addPoste",
+          this.$axios.post(
+              "poste.php?action=addPoste",
               data
             )
             .then((res) => {
@@ -264,9 +260,8 @@ export default {
               console.error("Il y a eu une erreur", error);
             });
         } else if (this.modalType === "edit") {
-          axios
-            .post(
-              "http://localhost/GestionPersonnel/backend/poste.php?action=updatePoste",
+          this.$axios.post(
+              "poste.php?action=updatePoste",
               data
             )
             .then((res) => {
@@ -291,9 +286,8 @@ export default {
         console.error("ID du poste manquant");
         return;
       }
-      const url = `http://localhost/GestionPersonnel/backend/poste.php?action=fetchSingle&id=${id}`;
-      axios
-        .get(url)
+      const url = `poste.php?action=fetchSingle&id=${id}`;
+      this.$axios.get(url)
         .then((res) => {
           if (!res.data.error) {
             this.Admin = {
@@ -319,9 +313,8 @@ export default {
         console.error("ID du poste manquant pour la suppression");
         return;
       }
-      axios
-        .post(
-          `http://localhost/GestionPersonnel/backend/poste.php?action=deletePoste&id=${this.deletePosteId}`
+      this.$axios.get(
+          `poste.php?action=deletePoste&id=${this.deletePosteId}`
         )
         .then((res) => {
           if (!res.data.error) {
@@ -337,9 +330,8 @@ export default {
         });
     },
     listPostes() {
-      axios
-        .get(
-          "http://localhost/GestionPersonnel/backend/poste.php?action=listPostes"
+      this.$axios.get(
+          "poste.php?action=listPostes"
         )
         .then((res) => {
           if (!res.data.error) {

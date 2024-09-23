@@ -17,7 +17,7 @@ export default {
   setup() {
     const route = useRoute();
     const showDashboard = computed(() => {
-      return route.name !== 'register' && route.name !== 'index';
+      return route.name !== 'register' && route.name !== 'index' && route.name !== 'otp' && route.name !== 'forgotPassword' && route.name !== 'resetPassword'&& route.name !== 'notification' && route.name !== 'chatDashboard' && route.name !== 'chat';
     });
 
     return {

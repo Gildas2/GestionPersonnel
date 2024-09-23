@@ -5,12 +5,6 @@
         <div class="row align-items-center">
           <div class="col">
             <h3 class="page-title">Département</h3>
-            <ul class="breadcrumb">
-              <li class="breadcrumb-item">
-                <a href="admin-dashboard.html">Dashboard</a>
-              </li>
-              <li class="breadcrumb-item active">Département</li>
-            </ul>
           </div>
           <div class="col-auto float-end ms-auto">
             <a
@@ -141,8 +135,6 @@
   </div>
 </template>
 <script>
-import axios from 'axios';
-
 export default {
   name: "departement",
   data() {
@@ -188,7 +180,7 @@ export default {
 
       if (this.Admin.departmentName != "") {
         if (this.modalType === 'add') {
-          axios.post('http://localhost/GestionPersonnel/backend/departement.php?action=addDepartment', data)
+          this.$axios.post('departement.php?action=addDepartment', data)
             .then(res => {
               console.log(res.data);
               if (!res.data.error) {
@@ -203,7 +195,7 @@ export default {
               console.error("Il y a eu une erreur!", error);
             });
         } else if (this.modalType === 'edit') {
-          axios.post('http://localhost/GestionPersonnel/backend/departement.php?action=updateDepartment', data)
+          this.$axios.post('departement.php?action=updateDepartment', data)
             .then(res => {
               console.log(res.data);
               if (!res.data.error) {
@@ -228,8 +220,8 @@ export default {
         console.error("ID du département manquant");
         return;
       }
-      const url = `http://localhost/GestionPersonnel/backend/departement.php?action=fetchSingle&id=${id}`;
-      axios.get(url)
+      const url = `departement.php?action=fetchSingle&id=${id}`;
+      this.$axios.get(url)
         .then(res => {
           if (!res.data.error) {
             this.Admin = {
@@ -254,7 +246,7 @@ export default {
         console.error("ID du département manquant pour la suppression");
         return;
       }
-      axios.post(`http://localhost/GestionPersonnel/backend/departement.php?action=deleteDepartment&id=${this.deleteDepartmentId}`)
+      this.$axios.post(`departement.php?action=deleteDepartment&id=${this.deleteDepartmentId}`)
         .then(res => {
           if (!res.data.error) {
             alert("Département supprimé avec succès");
@@ -270,7 +262,7 @@ export default {
     },
 
     listDepartment() {
-      axios.get("http://localhost/GestionPersonnel/backend/departement.php?action=listDepartments")
+      this.$axios.get("departement.php?action=listDepartments")
         .then(res => {
           if (!res.data.error) {
             this.departments = res.data.departments;

@@ -4,13 +4,7 @@
       <div class="page-header">
         <div class="row align-items-center">
           <div class="col">
-            <h3 class="page-title">Employé</h3>
-            <ul class="breadcrumb">
-              <li class="breadcrumb-item">
-                <a href="admin-dashboard.html">Dashboard</a>
-              </li>
-              <li class="breadcrumb-item active">Employé</li>
-            </ul>
+            <h3 class="page-title">Employés</h3>
           </div>
           <div class="col-auto float-end ms-auto">
             <a class="btn add-btn" data-bs-toggle="modal" data-bs-target="#add_employee" @click="openModal('add')"><i
@@ -28,78 +22,82 @@
       <div class="row filter-row">
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus">
-            <input type="text" class="form-control floating" @keyup="fetchData" v-model="lastName"/>
+            <input type="text" class="form-control floating" @keyup="fetchData" v-model="lastName" />
             <label class="focus-label">Nom de l'employé</label>
           </div>
         </div>
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus">
-            <input type="text" class="form-control floating" @keyup="fetchData" v-model="firstName"/>
+            <input type="text" class="form-control floating" @keyup="fetchData" v-model="firstName" />
             <label class="focus-label">Prénom de l'employé</label>
           </div>
         </div>
         <div class="col-sm-6 col-md-3">
-          <div class="input-block mb-3 form-focus">
-            <input type="text" class="form-control floating" @keyup="fetchData" v-model="poste"/>
+          <div class="input-block mb-3 form-focus select-focus">
+            <select class="form-control floating" v-model="poste_nom" @change="fetchData">
+              <option value="">-- Sélectionner --</option>
+              <option v-for="(poste, index) in postes" :key="index" :value="poste.id">
+                {{ poste.name }}
+              </option>
+            </select>
             <label class="focus-label">Poste</label>
           </div>
         </div>
-
         <div class="col-sm-6 col-md-3">
           <div class="d-grid">
-            <input class="btn btn-success w-100" @click="fetchData()" value="Rechercher">
+            <input type="submit" class="btn btn-success w-100" value="Rechercher" @click="fetchData()">
           </div>
         </div>
-      </div>
 
-      <div class="row">
-        <div class="col-md-12">
-          <div class="table-responsive">
-            <table class="table table-striped custom-table datatable">
-              <thead>
-                <tr>
-                  <th>Nom & Prénom(s)</th>
-                  <th>Matricule</th>
-                  <th>Email</th>
-                  <th>Numéro de téléphone</th>
-                  <th class="text-nowrap">Date de début</th>
-                  <th>Poste</th>
-                  <th class="text-end no-sort">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="employe in employes" :key="employe.id">
-                  <td>
-                    <h2 class="table-avatar">
-                      <a href="profile.html" class="avatar"><img :src="employe.url"
-                          alt="User Image"></a>
-                      <a href="profile.html">{{ employe.lastName }} {{ employe.firstName }}</a>
-                    </h2>
-                  </td>
-                  <td>{{ employe.number }}</td>
-                  <td>{{ employe.email }}</td>
-                  <td>{{ employe.phoneNumber }}</td>
-                  <td>{{ employe.startDate }}</td>
-                  <td>{{ employe.poste_nom }}</td>
-                  <div v-if="nodata">
-								    <td colspan="2" align="center">No Data Found</td>
-							    </div>
-                  <td class="text-end">
-                    <div class="dropdown dropdown-action">
-                      <a class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i
-                          class="material-icons">more_vert</i></a>
-                      <div class="dropdown-menu dropdown-menu-right">
-                        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#add_employee"
-                          @click="openModal('edit', employe.id)"><i class="fa-solid fa-pencil m-r-5"></i> Modifier</a>
-                        <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#delete_employee"
-                          @click="setDeleteEmployeId(employe.id)"><i class="fa-regular fa-trash-can m-r-5"></i>
-                          Supprimer</a>
-                      </div>
+
+        <div class="row">
+          <div class="col-md-12">
+            <div class="table-responsive">
+              <table class="table table-striped custom-table datatable">
+                <thead>
+                  <tr>
+                    <th>Matricule</th>
+                    <th>Nom & Prénom(s)</th>
+                    <th>Email</th>
+                    <th>Numéro de téléphone</th>
+                    <th class="text-nowrap">Date de début</th>
+                    <th>Poste</th>
+                    <th class="text-end no-sort">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="employe in employes" :key="employe.id">
+                    <td>{{ employe.number }}</td>
+                    <td>
+                      <h2 class="table-avatar">
+                        <a href="profile.html" class="avatar"><img :src="employe.url" alt="User Image"></a>
+                        <a href="profile.html">{{ employe.lastName }} {{ employe.firstName }}</a>
+                      </h2>
+                    </td>
+                    <td>{{ employe.email }}</td>
+                    <td>{{ employe.phoneNumber }}</td>
+                    <td>{{ employe.startDate }}</td>
+                    <td>{{ employe.poste_nom }}</td>
+                    <div v-if="nodata">
+                      <td colspan="2" align="center">No Data Found</td>
                     </div>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+                    <td class="text-end">
+                      <div class="dropdown dropdown-action">
+                        <a class="action-icon dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false"><i
+                            class="material-icons">more_vert</i></a>
+                        <div class="dropdown-menu dropdown-menu-right">
+                          <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#_employee"
+                            @click="openModal('edit', employe.id)"><i class="fa-solid fa-pencil m-r-5"></i> Modifier</a>
+                          <a class="dropdown-item" data-bs-toggle="modal" data-bs-target="#delete_employee"
+                            @click="setDeleteEmployeId(employe.id)"><i class="fa-regular fa-trash-can m-r-5"></i>
+                            Supprimer</a>
+                        </div>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
       </div>
@@ -130,6 +128,7 @@
                     </div>
                   </div>
                 </div>
+
                 <!-- Informations personnelles-->
                 <h4 class="mb-3">Informations personnelles</h4>
                 <div class="col-sm-6">
@@ -174,7 +173,7 @@
                 </div>
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
-                    <label class="col-form-label">Email <span class="text-danger">*</span></label>
+                    <label class="col-form-label">Adresse mail <span class="text-danger">*</span></label>
                     <input class="form-control" type="email" v-model="UsersData.email" required />
                   </div>
                 </div>
@@ -197,15 +196,38 @@
                     <input class="form-control" type="text" v-model="UsersData.religion" required />
                   </div>
                 </div>
+                <div class="col-sm-6">
+                  <div class="input-block mb-3">
+                    <label class="col-form-label">Mot de passe <span class="text-danger">*</span></label>
+                    <div class="position-relative">
+                      <input class="form-control" :type="passwordFieldType" v-model="UsersData.password"
+                        @input="checkPasswordStrength" required />
+                      <span class="fa" :class="showPassword ? 'fa-eye' : 'fa-eye-slash'"
+                        @click="togglePasswordVisibility('password')"
+                        style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></span>
+                    </div>
+                    <p :class="passwordStrengthClass">{{ passwordStrengthMessage }}</p>
+                  </div>
+                </div>
+                <div class="col-sm-6">
+                  <div class="input-block mb-3">
+                    <label class="col-form-label">Confirmer mot de passe <span class="text-danger">*</span></label>
+                    <div class="position-relative">
+                      <input class="form-control" :type="confirmPasswordFieldType" v-model="UsersData.confirmPassword"
+                        required />
+                      <span class="fa" :class="showConfirmPassword ? 'fa-eye' : 'fa-eye-slash'"
+                        @click="togglePasswordVisibility('confirmPassword')"
+                        style="cursor: pointer; position: absolute; right: 10px; top: 50%; transform: translateY(-50%);"></span>
+                    </div>
+                  </div>
+                </div>
 
                 <!-- Informations professionnelles-->
                 <h4 class="mb-3">Informations profesionnelles</h4>
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Date de début <span class="text-danger">*</span></label>
-                    <div>
-                      <input class="form-control datetimepicker" type="date" v-model="UsersData.date" required />
-                    </div>
+                    <input class="form-control" v-model="UsersData.startDate" type="date" />
                   </div>
                 </div>
                 <div class="col-sm-6">
@@ -250,6 +272,16 @@
                     <input type="text" class="form-control" v-model="UsersData.contrat" />
                   </div>
                 </div>
+                <div class="col-sm-6">
+                  <div class="input-block mb-3">
+                    <label class="col-form-label">Rôle <span class="text-danger">*</span></label>
+                    <select class="form-control" v-model="UsersData.role" required>
+                      <option>-- Sélectionner --</option>
+                      <option>Admin</option>
+                      <option>Employé</option>
+                    </select>
+                  </div>
+                </div>
 
                 <!-- Informations professionnelles-->
                 <h4 class="mb-3">Informations bancaires</h4>
@@ -279,6 +311,22 @@
     </div>
   </div>
 
+  <div id="center-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
+      <div class="modal-dialog modal-sm modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header border-0">
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            <div class="text-center">
+              <p>{{ modalMessage }}</p>
+              <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Fermer</button>
+            </div>
+          </div>
+        </div>
+      </div>
+  </div>
+
   <div class="modal custom-modal fade" id="delete_employee" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
@@ -304,7 +352,6 @@
 </template>
 
 <script>
-import axios from "axios";
 export default {
   name: "employes",
   data() {
@@ -316,14 +363,17 @@ export default {
         nom: "",
         prenom: "",
         departmentId: "",
+        startDate: "",
         poste_id: "",
-        date: "",
         religion: "",
         numero: "",
         email: "",
         age: "",
         genre: "",
         nationalite: "",
+        password: "",
+        confirmPassword: "",
+        role: "",
         situation: "",
         niveau: "",
         nomBanque: "",
@@ -334,26 +384,72 @@ export default {
       departments: [],
       postes: [],
       employes: "",
-      lastName:"",
-      firstName:"",
-      poste: "",
-      nodata:false,
+      firstName: "",
+      lastName: "",
+      poste_nom: "",
       modalType: "",
       modalButton: "",
       modalTitle: "",
       successAlert: false,
       errorAlert: false,
       uploadedImage: '',
-      deleteEmployeeId: null
+      deleteEmployeeId: null,
+      nodata: false,
+      showPassword: false,
+      showConfirmPassword: false,
+      passwordStrengthMessage: '',
+      passwordStrengthClass: '',
+      errorMessage: '',
+      successMessage: '',
+      modalMessage: '',
     };
   },
+  computed: {
+    passwordFieldType() {
+      return this.showPassword ? "text" : "password";
+    },
+    confirmPasswordFieldType() {
+      return this.showConfirmPassword ? "text" : "password";
+    }
+  },
   mounted() {
+    this.listEmployee();
     this.getDepartments();
     this.getPostes();
-    this.listEmployee();
   },
 
   methods: {
+    togglePasswordVisibility(field) {
+      if (field === 'password') {
+        this.showPassword = !this.showPassword;
+      } else if (field === 'confirmPassword') {
+        this.showConfirmPassword = !this.showConfirmPassword;
+      }
+    },
+    checkPasswordStrength() {
+      const password = this.UsersData.password;
+      let strength = 0;
+      if (password.length >= 8) strength += 1;
+      if (/[A-Z]/.test(password)) strength += 1;
+      if (/[a-z]/.test(password)) strength += 1;
+      if (/[0-9]/.test(password)) strength += 1;
+      if (/[^A-Za-z0-9]/.test(password)) strength += 1;
+
+      if (strength === 1 || strength === 2) {
+        this.passwordStrengthMessage = 'Mot de passe faible';
+        this.passwordStrengthClass = 'text-danger';
+      } else if (strength === 3 || strength === 4) {
+        this.passwordStrengthMessage = 'Mot de passe moyen';
+        this.passwordStrengthClass = 'text-warning';
+      } else if (strength === 5) {
+        this.passwordStrengthMessage = 'Mot de passe fort';
+        this.passwordStrengthClass = 'text-success';
+      } else {
+        this.passwordStrengthMessage = '';
+        this.passwordStrengthClass = '';
+      }
+    },
+
     poste() {
       this.$router.push({ path: "/employes", hash: "#" });
     },
@@ -361,17 +457,20 @@ export default {
     resetForm() {
       this.UsersData = {
         id: "",
-        file: "",
         matricule: "",
         nom: "",
         departmentId: "",
         poste_id: "",
-        date: "",
+        startDate: "",
         numero: "",
         religion: "",
         email: "",
+        password: "",
+        confirmPassword: "",
+        role: "",
         age: "",
         genre: "",
+        startDate: "",
         nationalite: "",
         situation: "",
         niveau: "",
@@ -379,10 +478,13 @@ export default {
         numeroBanque: "",
         csp: "",
         contrat: "",
+        file: "",
       };
       this.uploadedImage = '';
       this.successAlert = false;
       this.errorAlert = false;
+      this.errorMessage = '';
+      this.successMessage = '';
     },
 
     openModal(type, id = null) {
@@ -396,13 +498,11 @@ export default {
         this.fetchSingleEmployee(id);
       }
     },
+
     getDepartments() {
-      axios
-        .get(
-          "http://localhost/GestionPersonnel/backend/departement.php?action=getDepartments"
-        )
+      this.$axios.get("departement.php?action=getDepartments")
         .then((res) => {
-          if (res.data.error === false) {
+          if (!res.data.error) {
             this.departments = res.data.departments;
           } else {
             console.error(
@@ -417,12 +517,9 @@ export default {
     },
 
     getPostes() {
-      axios
-        .get(
-          "http://localhost/GestionPersonnel/backend/poste.php?action=getPostes"
-        )
+      this.$axios.get("poste.php?action=getPostes")
         .then((res) => {
-          if (res.data.error == false) {
+          if (!res.data.error) {
             this.postes = res.data.postes;
           } else {
             console.error(
@@ -431,33 +528,62 @@ export default {
           }
         })
         .catch((error) => {
-          console.error("Il y a une erreur!", error);
+          console.error("Il y a eu une erreur!", error);
         });
     },
 
+    showModal(message) {
+      this.modalMessage = message;
+      const modal = new bootstrap.Modal(document.getElementById('center-modal'));
+      modal.show();
+    },
+
     submitData() {
+      this.errorAlert = false;
+      this.successAlert = false;
+
+      if (this.UsersData.password !== this.UsersData.confirmPassword) {
+        this.errorAlert = true;
+        this.errorMessage = "Les mots de passe ne correspondent pas.";
+        return;
+      }
+
       const formData = new FormData();
       for (const key in this.UsersData) {
-        formData.append(key, this.UsersData[key]);
+        if (key !== 'confirmPassword' && this.UsersData[key]) {
+          formData.append(key, this.UsersData[key]);
+        }
       }
-      formData.append('file', this.$refs.file.files[0]);
 
-      const url = this.modalType === "add"
-        ? 'http://localhost/GestionPersonnel/backend/employe.php?action=addEmploye'
-        : 'http://localhost/GestionPersonnel/backend/employe.php?action=updateEmployee';
+      if (this.$refs.file.files.length > 0) {
+        formData.append('file', this.$refs.file.files[0]);
+      }
 
-      axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
-        .then(response => {
-          if (response.data.error) {
+      console.log('Form Data:', Array.from(formData.entries()));
+
+      const url = this.modalType === 'add'
+        ? 'employe.php?action=addEmploye'
+        : 'employe.php?action=updateEmploye';
+
+      this.$axios.post(url, formData, { headers: { 'Content-Type': 'multipart/form-data' } })
+        .then(res => {
+          if (res.data.error) {
             this.errorAlert = true;
-            this.errorMessage = response.data.message;
+            this.errorMessage = res.data.message || "Erreur lors de l'opération";
           } else {
             this.successAlert = true;
-            this.successMessage = response.data.message;
-            if (response.data.image) {
-              this.uploadedImage = `<img src='${response.data.image}' class='img-thumbnail' width='200' />`;
+            this.successMessage = res.data.message || "Opération réussie";
+            if (res.data.image) {
+              this.uploadedImage = `<img src='${res.data.image}' class='img-thumbnail' width='200' />`;
             }
+            this.showModal(this.modalType === 'add' ? "Employé ajouté avec succès" : "Employé mis à jour avec succès");
             this.resetForm();
+
+            const addModal = bootstrap.Modal.getInstance(document.getElementById('add_employee'));
+            if (addModal) {
+              addModal.hide();
+            }
+
             this.listEmployee();
           }
         })
@@ -485,13 +611,35 @@ export default {
     },
 
     fetchSingleEmployee(id) {
-      axios
-        .get(
-          `http://localhost/GestionPersonnel/backend/employe.php?action=fetchSingle&id=${id}`
-        )
+      this.$axios.get(`employe.php?action=fetchSingle&id=${id}`)
         .then((res) => {
-          if (res.data.error === false) {
-            this.UsersData = res.data.employe; // Assuming employe is the response object for single employee
+          if (!res.data.error) {
+            this.UsersData = {
+              id: res.data.data.id,
+              matricule: res.data.data.number,
+              nom: res.data.data.lastName,
+              prenom: res.data.data.firstName,
+              departmentId: res.data.data.department_id,
+              poste_id: res.data.data.poste_id,
+              startDate: res.data.data.startDate,
+              religion: res.data.data.religion,
+              numero: res.data.data.phoneNumber,
+              email: res.data.data.email,
+              password: "",
+              role: res.data.data.role,
+              age: res.data.data.old,
+              genre: res.data.data.gender,
+              nationalite: res.data.data.nationality,
+              situation: res.data.data.maritalStatus,
+              niveau: res.data.data.level,
+              nomBanque: res.data.data.nameBank,
+              numeroBanque: res.data.data.nBank,
+              csp: res.data.data.csp,
+              contrat: res.data.data.contract,
+            };
+            if (res.data.data.url) {
+              this.uploadedImage = `<img src='${res.data.data.url}' class='img-thumbnail' width='200' />`;
+            }
           } else {
             console.error(
               "Erreur lors de la récupération des informations de l'employé : " +
@@ -516,10 +664,15 @@ export default {
         console.error("ID de l/'employé manquant pour la suppression");
         return;
       }
-      axios.post(`http://localhost/GestionPersonnel/backend/employe.php?action=deleteEmploye&id=${this.deleteEmployeeId}`)
+      this.$axios.post(`employe.php?action=deleteEmploye&id=${this.deleteEmployeeId}`)
         .then(res => {
           if (!res.data.error) {
-            alert("Employé supprimé avec succès");
+            this.showModal("Employé supprimé avec succès");
+
+            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('delete_employee'));
+            if (deleteModal) {
+              deleteModal.hide();
+            }
             this.listEmployee();
             this.deleteEmployeeId = null;
           } else {
@@ -532,7 +685,7 @@ export default {
     },
 
     listEmployee() {
-      axios.get("http://localhost/GestionPersonnel/backend/employe.php?action=listEmployee")
+      this.$axios.get("employe.php?action=listEmployee")
         .then(res => {
           if (!res.data.error) {
             this.employes = res.data.employes;
@@ -548,22 +701,25 @@ export default {
     fetchData() {
       const nom = this.lastName.toLowerCase();
       const prenom = this.firstName.toLowerCase();
-      const poste = this.poste.toLowerCase();
+      const poste = this.poste_nom;
 
-      if (nom || prenom || poste ) {
-        axios
-          .get(`http://localhost/GestionPersonnel/backend/action.php?action=searchEmployes`, {
-            params : {
-              nom: nom,
-              prenom: prenom,
-              poste: poste
-            }
-          })
+      if (poste === '') {
+        this.listEmployee();
+        return;
+      }
+
+      if (nom || prenom || poste) {
+        this.$axios.get(`action.php?action=searchEmployes`, {
+          params: {
+            nom: nom,
+            prenom: prenom,
+            poste: poste
+          }
+        })
           .then((response) => {
-            if (response.data.error === false) {
+            if (!response.data.error) {
               this.employes = response.data.employes;
               this.nodata = this.employes.length === 0;
-              
             } else {
               console.error("Erreur lors de la recherche des employés : " + response.data.message);
             }
@@ -576,8 +732,11 @@ export default {
       }
     },
   },
-  created:function(){
-		this.fetchData();
-	}
 };
 </script>
+
+<style scoped>
+.upload {
+  background-color: aqua;
+}
+</style>

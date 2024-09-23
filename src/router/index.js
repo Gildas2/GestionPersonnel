@@ -21,7 +21,18 @@ import jobView from '../views/jobView.vue';
 import jobApplicant from '../views/jobApplicant.vue';
 import chat from '../views/chat.vue';
 import employeList from '../views/employeList.vue';
-
+import Map from '../components/Map.vue';
+import otp from '../views/otp.vue'
+import forgotPassword from '../views/forgotPassword.vue';
+import resetPassword from '../views/resetPassword.vue';
+import notification from '../views/notification.vue';
+import search from '../views/search.vue';
+import calendar from '../views/calendar.vue';
+import profileAdmin from '../views/profileAdmin.vue';
+import profileEmploye from '../views/profileEmploye.vue';
+import adminDashboard from '../views/adminDashboard.vue';
+import employeDashboard from '../views/employeDashboard.vue';
+import chatDashboard from '../views/chatDashboard.vue';
 const routes = [
     {
         path: "/dashboard",
@@ -124,20 +135,81 @@ const routes = [
         component: jobApplicant
     },
     {
-        path: "/chat",
+        path: "/chat/:id",
         name: "chat",
         component: chat
+    },
+    {
+        path: "/chatDashboard",
+        name: "chatDashboard",
+        component: chatDashboard
     },
     {
         path: "/employeList",
         name: "employeList",
         component: employeList
+    },
+    {
+        path: "/map",
+        name: "Map",
+        component: Map
+    },
+    {
+        path: "/otp",
+        name: "otp",
+        component: otp
+    },
+    {
+        path: "/forgotPassword",
+        name: "forgotPassword",
+        component: forgotPassword
+    },
+    {
+        path: "/resetPassword",
+        name: "resetPassword",
+        component: resetPassword
+    },
+    {
+        path: "/notification",
+        name: "notification",
+        component: notification
+    },
+    {
+        path: "/search",
+        name: "search",
+        component: search
+    },
+    {
+        path: "/calendar",
+        name: "calendar",
+        component: calendar
+    },
+    {
+        path: "/profileAdmin",
+        name: "profileAdmin",
+        component: profileAdmin
+    },
+    {
+        path: "/profileEmploye",
+        name: "profileEmploye",
+        component: profileEmploye
+    },
+    {
+        path: "/adminDashboard",
+        name: "adminDashboard",
+        component: adminDashboard
+    },
+    {
+        path: "/employeDashboard",
+        name: "employeDashboard",
+        component: employeDashboard
     }
 ]
 
 const router = createRouter({
     history: createWebHistory(),
     routes,
+    duplicateNavigationPolicy: 'ignore'
 })
 
 export default router;
