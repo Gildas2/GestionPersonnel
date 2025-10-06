@@ -174,12 +174,23 @@
         </div>
       </div>
     </div>
+
+    <Modal :popupMessage="popupMessage" :show="isModalVisible" @close="isModalVisible = false"/>
+
+    <!-- Utilisation de ModalHandler -->
+    <ModalHandler ref="modalHandler" />
   </div>
 </template>
 
 <script>
+import Modal from './modal.vue';
+import ModalHandler from './modalHandler.vue';
 export default {
   name: "poste",
+  components : {
+    Modal, 
+    ModalHandler
+  },
   data() {
     return {
       Admin: {
@@ -193,6 +204,8 @@ export default {
       modalTitle: "",
       modalButton: "",
       deletePosteId: null,
+      popupMessage: '', 
+      isModalVisible: false,
     };
   },
   mounted() {
@@ -200,6 +213,10 @@ export default {
     this.listPostes();
   },
   methods: {
+    showModal(message) {
+      this.popupMessage = message;
+      this.isModalVisible = true;
+    },
     poste() {
       this.$router.push({ path: "/poste" });
     },
@@ -249,7 +266,8 @@ export default {
             )
             .then((res) => {
               if (!res.data.error) {
-                alert("Poste ajouté avec succès");
+                this.$refs.modalHandler.closeModal('add_edit_designation');
+                this.showModal("Poste ajouté avec succès");
                 this.listPostes();
                 this.Admin = { id: "", posteName: "", departmentId: "" };
               } else {
@@ -266,7 +284,8 @@ export default {
             )
             .then((res) => {
               if (!res.data.error) {
-                alert("Poste mis à jour avec succès");
+                this.$refs.modalHandler.closeModal('add_edit_designation');
+                this.showModal("Poste mis à jour avec succès");
                 this.Admin = { id: "", posteName: "", departmentId: "" };
                 this.listPostes();
               } else {
@@ -318,7 +337,8 @@ export default {
         )
         .then((res) => {
           if (!res.data.error) {
-            alert("Poste supprimé avec succès");
+            this.$refs.modalHandler.closeModal('delete_designation');
+            this.showModal("Poste supprimé avec succès");
             this.listPostes();
             this.deletePosteId = null;
           } else {

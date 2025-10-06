@@ -28,14 +28,13 @@
                   <li v-if="userStore.role === 'admin'">
                     <router-link :to="{ name: 'attendance' }">Présences/Absences (Admin)</router-link>
                   </li>
-                  <li v-if="userStore.role === 'admin' || userStore.role === 'Employé'">
-
+                  <li v-if="userStore.role === 'Employé'">
                     <router-link :to="{ name: 'attendanceEmployee' }">Présences/Absences (Employé)</router-link>
                   </li>
                   <li v-if="userStore.role === 'admin'">
                     <router-link :to="{ name: 'leaves' }">Permissions (Admin)</router-link>
                   </li>
-                  <li v-if="userStore.role === 'admin' || userStore.role === 'Employé'">
+                  <li v-if="userStore.role === 'Employé'">
                     <router-link :to="{ name: 'leavesEmployee' }">Permissions (Employé)</router-link>
                   </li>
                 </ul>
@@ -96,7 +95,7 @@
                   <li v-if="userStore.role === 'admin' || userStore.role === 'Employé'"><a
                       href="/chatDashboard">Chat</a></li>
                   <li v-if="userStore.role === 'admin'">
-                    <a :to="{ name: 'calendar' }">Calendrier</a>
+                    <router-link :to="{ name: 'calendar' }">Calendrier</router-link>
                   </li>
                 </ul>
               </li>

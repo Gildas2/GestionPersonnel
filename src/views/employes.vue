@@ -22,19 +22,19 @@
       <div class="row filter-row">
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus">
-            <input type="text" class="form-control floating" @keyup="fetchData" v-model="lastName" />
+            <input type="text" class="form-control floating" v-model="lastName" />
             <label class="focus-label">Nom de l'employé</label>
           </div>
         </div>
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus">
-            <input type="text" class="form-control floating" @keyup="fetchData" v-model="firstName" />
+            <input type="text" class="form-control floating" v-model="firstName" />
             <label class="focus-label">Prénom de l'employé</label>
           </div>
         </div>
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus select-focus">
-            <select class="form-control floating" v-model="poste_nom" @change="fetchData">
+            <select v-model="poste_nom" class="select1">
               <option value="">-- Sélectionner --</option>
               <option v-for="(poste, index) in postes" :key="index" :value="poste.id">
                 {{ poste.name }}
@@ -125,13 +125,13 @@
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Age <span class="text-danger">*</span></label>
-                    <input class="form-control" type="text" v-model="UsersData.age" required />
+                    <input class="form-control" type="number" v-model="UsersData.age" required />
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Genre <span class="text-danger">*</span></label>
-                    <select class="form-control" type="text" v-model="UsersData.genre" required>
+                    <select type="text" v-model="UsersData.genre" class="select2" required>
                       <option value="Homme">Homme</option>
                       <option value="Femme">Femme</option>
                     </select>
@@ -141,7 +141,7 @@
                   <div class="input-block mb-3">
                     <label class="col-form-label">Numéro de téléphone
                       <span class="text-danger">*</span></label>
-                    <input class="form-control" type="text" v-model="UsersData.numero" required />
+                    <input class="form-control" type="number" v-model="UsersData.numero" required />
                   </div>
                 </div>
                 <div class="col-sm-6">
@@ -153,20 +153,36 @@
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Nationalité <span class="text-danger">*</span></label>
-                    <input class="form-control" type="text" v-model="UsersData.nationalite" required />
+                    <select type="text" class="select2" v-model="UsersData.nationalite" required>
+                      <option value="burkinabe">Burkinabé</option>
+                      <option value="ivoirien">Ivoirien</option>
+                      <option value="malien">Malien</option>
+                      <option value="autre">Autre</option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Situation matrimoniale
                       <span class="text-danger">*</span></label>
-                    <input class="form-control" type="text" v-model="UsersData.situation" required />
+                      <select type="text" class="select2" v-model="UsersData.situation" required>
+                        <option value="célibataire">Célibataire</option>
+                        <option value="marié">Marié(e)</option>
+                        <option value="divorcé">Divorcé(e)</option>
+                        <option value="veuf">Veuf(ve)</option>
+                      </select>
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Religion <span class="text-danger">*</span></label>
-                    <input class="form-control" type="text" v-model="UsersData.religion" required />
+                    <select type="text" class="select2" v-model="UsersData.religion" required>
+                      <option value="islam">Islam</option>
+                      <option value="catholicisme">Catholique</option>
+                      <option value="protestantisme">Protestant</option>
+                      <option value="animisme">Animiste</option>
+                      <option value="autre">Autre</option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-sm-6">
@@ -213,8 +229,7 @@
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Département <span class="text-danger">*</span></label>
-                    <select class="form-control" v-model="UsersData.departmentId" required>
-                      <option>Sélectionner un département</option>
+                    <select v-model="UsersData.departmentId" class="select2" required>
                       <option v-for="(department, index) in departments" :key="index" :value="department.id">
                         {{ department.name }}
                       </option>
@@ -224,8 +239,7 @@
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Poste <span class="text-danger">*</span></label>
-                    <select class="form-control" v-model="UsersData.poste_id" required>
-                      <option>Sélectionner un poste</option>
+                    <select v-model="UsersData.poste_id" class="select2" required>
                       <option v-for="(poste, index) in postes" :key="index" :value="poste.id">
                         {{ poste.name }}
                       </option>
@@ -242,16 +256,18 @@
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Contrat <span class="text-danger">*</span></label>
-                    <input type="text" class="form-control" v-model="UsersData.contrat" />
+                    <select v-model="UsersData.contrat" class="select2" required>
+                      <option>CDD</option>
+                      <option>CDI</option>
+                    </select>
                   </div>
                 </div>
                 <div class="col-sm-6">
                   <div class="input-block mb-3">
                     <label class="col-form-label">Rôle <span class="text-danger">*</span></label>
-                    <select class="form-control" v-model="UsersData.role" required>
-                      <option>-- Sélectionner --</option>
-                      <option>Admin</option>
+                    <select v-model="UsersData.role" class="select2" required>
                       <option>Employé</option>
+                      <option>DRH</option>
                     </select>
                   </div>
                 </div>
@@ -297,10 +313,9 @@
             </div>
           </div>
         </div>
-      </div>
-  </div>
-  
-  <div class="modal custom-modal fade" id="delete_employee" role="dialog">
+    </div>
+
+    <div class="modal custom-modal fade" id="delete_employee" role="dialog">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-body">
@@ -321,12 +336,26 @@
         </div>
       </div>
     </div>
+    </div>
+
+    <Modal :popupMessage="popupMessage" :show="isModalVisible" @close="isModalVisible = false"/>
+
+    <!-- Utilisation de ModalHandler -->
+    <ModalHandler ref="modalHandler" />
   </div>
+  
+
 </template>
 
 <script>
+import Modal from './modal.vue';
+import ModalHandler from './modalHandler.vue';
 export default {
   name: "employes",
+  components : {
+    Modal, 
+    ModalHandler
+  },
   data() {
     return {
       UsersData: {
@@ -375,6 +404,8 @@ export default {
       errorMessage: '',  
       successMessage: '',  
       modalMessage: '',
+      popupMessage: '', 
+      isModalVisible: false,
     };
   },
   computed: {
@@ -392,6 +423,10 @@ export default {
   },
 
   methods: {
+    showModal(message) {
+      this.popupMessage = message;
+      this.isModalVisible = true;
+    },
     togglePasswordVisibility(field) {
       if (field === 'password') {
         this.showPassword = !this.showPassword;
@@ -421,10 +456,6 @@ export default {
         this.passwordStrengthMessage = '';
         this.passwordStrengthClass = '';
       }
-    },
-
-    poste() {
-      this.$router.push({ path: "/employes", hash: "#" });
     },
 
     resetForm() {
@@ -549,13 +580,11 @@ export default {
             if (res.data.image) {
               this.uploadedImage = `<img src='${res.data.image}' class='img-thumbnail' width='200' />`;
             }
+
+            this.$refs.modalHandler.closeModal('add_employee');
+            
             this.showModal(this.modalType === 'add' ? "Employé ajouté avec succès" : "Employé mis à jour avec succès");
             this.resetForm();
-
-            const addModal = bootstrap.Modal.getInstance(document.getElementById('add_employee'));
-            if (addModal) {
-              addModal.hide();
-            }
 
             this.listEmployee();
           }
@@ -598,7 +627,6 @@ export default {
               religion: res.data.data.religion,
               numero: res.data.data.phoneNumber,
               email: res.data.data.email,
-              password: "",  
               role: res.data.data.role,
               age: res.data.data.old,
               genre: res.data.data.gender,
@@ -640,12 +668,10 @@ export default {
       this.$axios.post(`employe.php?action=deleteEmploye&id=${this.deleteEmployeeId}`)
         .then(res => {
           if (!res.data.error) {
+
+            this.$refs.modalHandler.closeModal('delete_employee');
             this.showModal("Employé supprimé avec succès");
 
-            const deleteModal = bootstrap.Modal.getInstance(document.getElementById('delete_employee'));
-            if (deleteModal) {
-              deleteModal.hide();
-            }
             this.listEmployee();
             this.deleteEmployeeId = null;
           } else {
@@ -708,8 +734,52 @@ export default {
 };
 </script>
 
-<style scoped>
-  .upload {
-    background-color: aqua;
+<style >
+  .profile-img-wrap {
+  background-color: rgba(0, 0, 0, 0.1); 
+  }
+
+  .select1 {
+    height: 50px;
+    width: 100%;
+    padding: 21px 12px 6px;
+    border-color: #D3D3D4;
+    border-radius: 5px;
+    box-shadow: none;
+    font-size: 14px;
+    color: #4D5154;
+    line-height: 2; 
+  }
+
+  .select1:focus {
+    outline: 2px solid #FF902F;
+  }
+
+  .select1::selection{
+    background: #FF902F;
+    color: #FFF;
+    text-shadow: none;
+  }
+
+  .select2 {
+    height: 45px;
+    width: 100%;
+    padding: 21px 12px 6px;
+    border-color: #D3D3D4;
+    border-radius: 5px;
+    box-shadow: none;
+    font-size: 14px;
+    color: #4D5154;
+    line-height: 2; 
+  }
+
+  .select2:focus {
+    outline: 2px solid #FF902F;
+  }
+
+  .select2::selection{
+    background: #FF902F;
+    color: #FFF;
+    text-shadow: none;
   }
 </style>

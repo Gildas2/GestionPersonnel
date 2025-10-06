@@ -30,7 +30,10 @@
                 </tr>
               </thead>
               <tbody>
-                <tr v-for="(departement, index) in departments" :key="departement.id">
+                <tr
+                  v-for="(departement, index) in departments"
+                  :key="departement.id"
+                >
                   <td>{{ index + 1 }}</td>
                   <td>{{ departement.name }}</td>
                   <td class="text-end">
@@ -48,7 +51,8 @@
                           @click="openModal('edit', departement.id)"
                           data-bs-toggle="modal"
                           data-bs-target="#add_department"
-                          ><i class="fa-solid fa-pencil m-r-5"></i> Modifier</a> 
+                          ><i class="fa-solid fa-pencil m-r-5"></i> Modifier</a
+                        >
                         <a
                           class="dropdown-item"
                           @click="setDeleteDepartementId(departement.id)"
@@ -88,11 +92,21 @@
                 <label class="col-form-label"
                   >Nom du département<span class="text-danger">*</span></label
                 >
-                <input class="form-control" type="text" v-model="Admin.departmentName" required/>
+                <input
+                  class="form-control"
+                  type="text"
+                  v-model="Admin.departmentName"
+                  required
+                />
               </div>
-              <input type="hidden" v-model="Admin.id">
+              <input type="hidden" v-model="Admin.id" />
               <div class="submit-section">
-                <button class="btn btn-primary submit-btn" @click.prevent="submitData">{{ modalButton }}</button>
+                <button
+                  class="btn btn-primary submit-btn"
+                  @click.prevent="submitData"
+                >
+                  {{ modalButton }}
+                </button>
               </div>
             </form>
           </div>
@@ -132,28 +146,45 @@
         </div>
       </div>
     </div>
+ 
+    <Modal :popupMessage="popupMessage" :show="isModalVisible" @close="isModalVisible = false"/>
+
+    <!-- Utilisation de ModalHandler -->
+    <ModalHandler ref="modalHandler" />
   </div>
 </template>
 <script>
+import Modal from './modal.vue';
+import ModalHandler from './modalHandler.vue';
 export default {
   name: "departement",
+  components : {
+    Modal, 
+    ModalHandler
+  },
   data() {
     return {
       Admin: {
         id: null,
-        departmentName: ''
+        departmentName: "",
       },
       departments: [],
       modalType: "",
       modalButton: "",
-      modalTitle: "", 
-      deleteDepartmentId: null
+      modalTitle: "",
+      deleteDepartmentId: null,
+      popupMessage: '', 
+      isModalVisible: false,
     };
   },
   mounted() {
-    this.listDepartment();    
+    this.listDepartment();
   },
   methods: {
+    showModal(message) {
+      this.popupMessage = message;
+      this.isModalVisible = true;
+    },
     departement() {
       this.$router.push({ path: "/departement" });
     },
@@ -173,40 +204,51 @@ export default {
 
     submitData() {
       const data = new FormData();
-      data.append('nom', this.Admin.departmentName); 
-      if(this.Admin.id){
-        data.append('id', this.Admin.id);
+      data.append("nom", this.Admin.departmentName);
+      if (this.Admin.id) {
+        data.append("id", this.Admin.id);
       }
 
       if (this.Admin.departmentName != "") {
-        if (this.modalType === 'add') {
-          this.$axios.post('departement.php?action=addDepartment', data)
-            .then(res => {
+        if (this.modalType === "add") {
+          this.$axios
+            .post("departement.php?action=addDepartment", data)
+            .then((res) => {
               console.log(res.data);
               if (!res.data.error) {
-                alert('Département ajouté avec succès');
-                this.Admin.departmentName = ''; // Réinitialisez le champ
-                this.listDepartment(); // Revenir à la liste des départements
+                this.$refs.modalHandler.closeModal('add_department');
+                this.showModal("Département ajouté avec succès");
+                this.Admin.departmentName = "";
+                this.listDepartment();
               } else {
-                console.log('Erreur lors de l\'ajout du département : ' + res.data.message);
+                console.log(
+                  "Erreur lors de l'ajout du département : " + res.data.message
+                );
               }
             })
-            .catch(error => {
+            .catch((error) => {
               console.error("Il y a eu une erreur!", error);
             });
-        } else if (this.modalType === 'edit') {
-          this.$axios.post('departement.php?action=updateDepartment', data)
-            .then(res => {
+        } else if (this.modalType === "edit") {
+          this.$axios
+            .post("departement.php?action=updateDepartment", data)
+            .then((res) => {
               console.log(res.data);
               if (!res.data.error) {
-                alert('Département mis à jour avec succès');
-                this.Admin = { id: null, departmentName: "" }; // Réinitialisez les champs
-                this.listDepartment(); // Revenir à la liste des départements
+               this.$refs.modalHandler.closeModal('add_department');
+               this.showModal(
+                  "Département mis à jour avec succès"
+                );
+                this.Admin = { id: null, departmentName: "" };
+                this.listDepartment();
               } else {
-                console.log('Erreur lors de la mise à jour du département : ' + res.data.message);
+                console.log(
+                  "Erreur lors de la mise à jour du département : " +
+                    res.data.message
+                );
               }
             })
-            .catch(error => {
+            .catch((error) => {
               console.error("Il y a eu une erreur!", error);
             });
         }
@@ -221,18 +263,22 @@ export default {
         return;
       }
       const url = `departement.php?action=fetchSingle&id=${id}`;
-      this.$axios.get(url)
-        .then(res => {
+      this.$axios
+        .get(url)
+        .then((res) => {
           if (!res.data.error) {
             this.Admin = {
               id: res.data.data.id,
               departmentName: res.data.data.name,
             };
           } else {
-            console.error("Erreur lors de la récupération du département : " + res.data.message);
+            console.error(
+              "Erreur lors de la récupération du département : " +
+                res.data.message
+            );
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Il y a eu une erreur", error);
         });
     },
@@ -246,31 +292,36 @@ export default {
         console.error("ID du département manquant pour la suppression");
         return;
       }
-      this.$axios.post(`departement.php?action=deleteDepartment&id=${this.deleteDepartmentId}`)
-        .then(res => {
+      this.$axios
+        .post(
+          `departement.php?action=deleteDepartment&id=${this.deleteDepartmentId}`
+        )
+        .then((res) => {
           if (!res.data.error) {
-            alert("Département supprimé avec succès");
-            this.listDepartment();
+            this.$refs.modalHandler.closeModal('delete_department');
+            this.showModal("Département supprimé avec succès");
             this.deleteDepartmentId = null;
+            this.listDepartment();
           } else {
             console.error("Erreur", res.data.message);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Erreur", error);
         });
     },
 
     listDepartment() {
-      this.$axios.get("departement.php?action=listDepartments")
-        .then(res => {
+      this.$axios
+        .get("departement.php?action=listDepartments")
+        .then((res) => {
           if (!res.data.error) {
             this.departments = res.data.departments;
           } else {
             console.error("Erreur", res.data.message);
           }
         })
-        .catch(error => {
+        .catch((error) => {
           console.error("Erreur", error);
         });
     },

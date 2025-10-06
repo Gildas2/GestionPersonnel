@@ -1,24 +1,32 @@
 <script setup>
-import { reactive, ref, onMounted } from 'vue'
-import FullCalendar from '@fullcalendar/vue3'
-import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
-import frLocale from '@fullcalendar/core/locales/fr'
-import axios from 'axios'
+import { reactive, ref, onMounted } from 'vue';
+import FullCalendar from '@fullcalendar/vue3';
+import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
+import interactionPlugin from '@fullcalendar/interaction';
+import frLocale from '@fullcalendar/core/locales/fr';
+import axios from 'axios';
+import { useUserStore } from '../stores/authStore';
+import Modal from './modal.vue';
+import ModalHandler from './modalHandler.vue';
 
-const fullCalendar = ref(null)
-let calApi = null
+const fullCalendar = ref(null);
+let calApi = null;
 
-const currentEvents = ref([])
-const selectedEvent = ref(null)
-const modalMessage = ref('');
+const userStore = useUserStore();
+const user_id = userStore.id;
+const currentEvents = ref([]);
+const selectedEvent = ref(null);
+const popupMessage =  ref('');
+const isModalVisible = ref(null);
 
 // Données pour le formulaire du modal
-const eventName = ref('')
-const eventStart = ref('')
-const eventEnd = ref('')
-const eventColor = ref('')
+const eventName = ref('');
+const eventStart = ref('');
+const eventEnd = ref('');
+const eventColor = ref('');
+
+const modalHandler = ref(null);
 
 // Options du calendrier
 const calendarOptions = reactive({
@@ -52,9 +60,21 @@ const calendarOptions = reactive({
 })
 
 function showModal(message) {
-    modalMessage.value = message; 
-    const modal = new bootstrap.Modal(document.getElementById('right-modal'));
-    modal.show();
+    popupMessage.value = message;
+    isModalVisible.value = true;
+}
+
+function closeModal(modalId) {
+    const modalElement = document.getElementById(modalId);
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+            modalElement.addEventListener('hidden.bs.modal', () => {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            });
+        }
+    }
 }
 
 function handleEventClick(clickInfo) {
@@ -127,28 +147,51 @@ function handleDateClick(info) {
   myModal.show()
 }
 
-function deleteEvent() {
-  const eventId = selectedEvent.value.id;
+function submitEvent() {
+  if (!eventName.value || !eventStart.value || !eventEnd.value) {
+    alert("Tous les champs doivent être remplis.");
+    return;
+  }
+  const eventData = new URLSearchParams();
+  eventData.append('title', eventName.value);
+  eventData.append('startDate', eventStart.value);
+  eventData.append('endDate', eventEnd.value);
+  eventData.append('color', eventColor.value);
+  eventData.append('user_id', user_id);
 
-  axios.post('http://localhost/GestionPersonnel/backend/events.php?action=deleteEvent', new URLSearchParams({
-    'eventId': eventId
-  }), {
+  axios.post('http://localhost/GestionPersonnel/backend/events.php?action=addEvent', eventData, {
     headers: {
       'Content-Type': 'application/x-www-form-urlencoded'
     }
   })
     .then(response => {
       if (response.data.success) {
-        selectedEvent.value.remove();
-        showModal('Événement supprimé avec succès');
-        loadEvents();
+        const modalElement = document.getElementById('add_event');
+        if (modalElement) {
+          const modalInstance = bootstrap.Modal.getInstance(modalElement);
+          if (modalInstance) {
+            modalInstance.hide();
+            modalElement.addEventListener('hidden.bs.modal', () => {
+              document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            });
+          }
+        }
+        
+        showModal('Événement ajouté avec succès');
       } else {
         showModal(response.data.message);
       }
+      // Réinitialisation des champs
+      eventName.value = '';
+      eventStart.value = '';
+      eventEnd.value = '';
+      eventColor.value = '';
+
+      loadEvents();
     })
     .catch(error => {
-      console.error('Error:', error);
-      showModal("Une erreur s'est produite lors de la suppression de l'événement.");
+      showModal("Une erreur s'est produite lors de l'enregistrement de l'événement.");
+      console.error('Erreur', error)
     });
 }
 
@@ -166,6 +209,7 @@ function updateEvent() {
   eventData.append('startDate', eventStart.value);
   eventData.append('endDate', eventEnd.value);
   eventData.append('color', eventColor.value);
+  eventData.append('user_id', user_id);
 
   axios.post('http://localhost/GestionPersonnel/backend/events.php?action=updateEvent', eventData, {
     headers: {
@@ -179,9 +223,21 @@ function updateEvent() {
         selectedEvent.value.setDates(eventStart.value, eventEnd.value);
         selectedEvent.value.setProp('backgroundColor', eventColor.value);
 
+        const modalElement = document.getElementById('edit_event');
+    if (modalElement) {
+        const modalInstance = bootstrap.Modal.getInstance(modalElement);
+        if (modalInstance) {
+            modalInstance.hide();
+            modalElement.addEventListener('hidden.bs.modal', () => {
+                document.querySelectorAll('.modal-backdrop').forEach(backdrop => backdrop.remove());
+            });
+        }
+    }
         showModal('Événement mis à jour avec succès');
-
-        // Réinitialisation des champs
+      } else {
+        showModal(response.data.message);
+      }
+      // Réinitialisation des champs
         eventName.value = '';
         eventStart.value = '';
         eventEnd.value = '';
@@ -189,11 +245,30 @@ function updateEvent() {
         
         selectedEvent.value = null;
 
-        // Fermer le modal d'édition
-        const editModal = bootstrap.Modal.getInstance(document.getElementById('edit_event'));
-        if (editModal) {
-          editModal.hide();
-        }
+        loadEvents();
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      showModal("Une erreur s'est produite lors de la mise à jour de l'événement.");
+    });
+}
+
+function deleteEvent() {
+  const eventId = selectedEvent.value.id;
+
+  axios.post('http://localhost/GestionPersonnel/backend/events.php?action=deleteEvent', new URLSearchParams({
+    'eventId': eventId,
+  }), {
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded'
+    }
+  })
+    .then(response => {
+      if (response.data.success) {
+        selectedEvent.value.remove();
+
+        closeModal('edit_event');
+        showModal('Événement supprimé avec succès');
 
         loadEvents();
       } else {
@@ -202,7 +277,7 @@ function updateEvent() {
     })
     .catch(error => {
       console.error('Error:', error);
-      showModal("Une erreur s'est produite lors de la mise à jour de l'événement.");
+      showModal("Une erreur s'est produite lors de la suppression de l'événement.");
     });
 }
 
@@ -229,41 +304,6 @@ function loadEvents() {
     .catch(error => {
       console.error('Erreur lors du chargement des événements', error)
     })
-}
-
-function submitEvent() {
-  if (!eventName.value || !eventStart.value || !eventEnd.value) {
-    alert("Tous les champs doivent être remplis.");
-    return;
-  }
-  const eventData = new URLSearchParams();
-  eventData.append('title', eventName.value);
-  eventData.append('startDate', eventStart.value);
-  eventData.append('endDate', eventEnd.value);
-  eventData.append('color', eventColor.value);
-
-  axios.post('http://localhost/GestionPersonnel/backend/events.php?action=addEvent', eventData, {
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded'
-    }
-  })
-    .then(response => {
-      showModal('Événement ajouté avec succès');
-      eventName.value = '';
-      eventStart.value = '';
-      eventEnd.value = '';
-      eventColor.value = '';
-
-      const addModal = bootstrap.Modal.getInstance(document.getElementById('add_event'));
-      if (addModal) {
-        addModal.hide();
-      }
-      loadEvents();
-    })
-    .catch(error => {
-      showModal("Une erreur s'est produite lors de l'enregistrement de l'événement.");
-      console.error('Erreur', error)
-    });
 }
 
 onMounted(() => {
@@ -311,6 +351,18 @@ onMounted(() => {
   padding: 10px;
 }
 
+.fc-toolbar .fc-button.default:hover {
+    background-color: #F2F3F4 !important; 
+    color: #7A7C7F !important;
+    border: none; 
+}
+
+.fc-toolbar .fc-button.clicked:hover {
+    background-color: black !important; 
+    color: white !important;
+    border: none; 
+}
+
 @media (max-width: 767.98px) {
   .fc .fc-toolbar.fc-header-toolbar {
     display: block;
@@ -335,8 +387,8 @@ onMounted(() => {
     justify-content: center;
     position: absolute;
     font-size: 10px;
-    top: 82px;
-    left: 50%;
+    top: 90px;
+    left: 25%;
     transform: translateX(-25%);
     width: 100%;
   }
@@ -352,7 +404,6 @@ onMounted(() => {
 </style>
 
 <template>
-  <div class="main-wrapper">
     <div class="page-wrapper">
       <div class="content container-fluid">
         <div class="page-header">
@@ -486,22 +537,9 @@ onMounted(() => {
         </div>
       </div>
 
-      <div id="right-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-        <div class="modal-dialog modal-sm modal-dialog-centered">
-          <div class="modal-content">
-            <div class="modal-header border-0">
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-              <div class="text-center">
-                <p>{{ modalMessage }}</p>
-                <button type="button" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Fermer</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
+      <Modal :popupMessage="popupMessage" :show="isModalVisible" @close="isModalVisible = false"/>
 
+      <!-- Utilisation de ModalHandler -->
+      <ModalHandler ref="modalHandler" />
     </div>
-  </div>
 </template>

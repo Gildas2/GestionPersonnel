@@ -33,6 +33,7 @@ import profileEmploye from '../views/profileEmploye.vue';
 import adminDashboard from '../views/adminDashboard.vue';
 import employeDashboard from '../views/employeDashboard.vue';
 import chatDashboard from '../views/chatDashboard.vue';
+
 const routes = [
     {
         path: "/dashboard",

@@ -22,7 +22,7 @@
         </div>
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus select-focus">
-            <select class="form-control select floating">
+            <select class="select">
               <option>-</option>
               <option>Jan</option>
               <option>Feb</option>
@@ -42,7 +42,7 @@
         </div>
         <div class="col-sm-6 col-md-3">
           <div class="input-block mb-3 form-focus select-focus">
-            <select class="form-control select floating">
+            <select class="select">
               <option>-</option>
               <option>2019</option>
               <option>2018</option>
@@ -113,6 +113,7 @@ export default {
 
 };
 </script>
+
 <style>
 .dp__input {
   border: 1px solid #ced4da;
@@ -131,4 +132,27 @@ export default {
 :root{
   --dp-input-padding: 6px 30px 6px 12px; 
 }
+
+  .select {
+    height: 50px;
+    width: 100%;
+    padding: 21px 12px 6px;
+    border-color: #D3D3D4;
+    border-radius: 5px;
+    box-shadow: none;
+    font-size: 14px;
+    color: #4D5154;
+    line-height: 2; 
+  }
+
+  .select:focus {
+    outline: 2px solid #FF902F;
+  }
+
+  .select::selection{
+    background: #FF902F;
+    color: #FFF;
+    text-shadow: none;
+  }
+  
 </style>

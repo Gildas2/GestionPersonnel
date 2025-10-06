@@ -17,8 +17,9 @@
                 Fiche de temps <small class="text-muted">{{ currentDate }}</small>
               </h5>
               <div class="punch-det">
-                <h6>Entrée à</h6>
-                <p>{{ punchInTime }}</p>
+                <h6>Heure d'arrivée</h6>
+                <p v-if="punchInTime">{{ punchInTime }}</p>
+                <p v-else>Pas encore enregistrée</p>
               </div>
               <div class="punch-info">
                 <div class="punch-hours">
@@ -26,8 +27,8 @@
                 </div>
               </div>
               <div class="punch-btn-section">
-                <input type="button" class="btn btn-primary punch-btn" value="Entrée" @click="handlePunchIn" />
-                <button type="button" class="btn btn-secondary punch-btn" @click="punchOut">
+                <input type="button" class="btn btn-primary punch-btn" value="Entrée" @click="handlePunch('in')" />
+                <button type="button" class="btn btn-secondary punch-btn" @click="handlePunch('out')">
                   Sortie
                 </button>
               </div>
@@ -52,6 +53,7 @@
             </div>
           </div>
         </div>
+
         <div class="col-md-4">
           <div class="card att-statistics">
             <div class="card-body">
@@ -126,7 +128,7 @@
                   <p class="mb-0">Sortie à</p>
                   <p class="res-activity-time">
                     <i class="fa-regular fa-clock"></i>
-                    11.00 AM.
+                    {{ punchOutTime }}
                   </p>
                 </li>
               </ul>
@@ -139,67 +141,142 @@
 </template>
 
 <script>
+import axios from 'axios';
+import { useUserStore } from '../stores/authStore';
+
 export default {
-  name: "attendanceEmployee",
   data() {
     return {
+      userCoordinates: null,
+      time: null,
+      userStore: null,
       currentDate: new Date().toLocaleDateString(),
-      punchInTime: "",
-      workedHours: 0,
-      locationStatus: "",
-      mapLinkText: "",
+      punchInTime: null,
+      punchOutTime: null,
+      hasPunchedIn: false, 
+      punchInDate: null,  
     };
   },
-  methods: {
-    handlePunchIn() {
-      if (this.isMobileDevice()) {
-        this.geoFindMe();
-      } else {
-        alert("Vous devez utiliser un appareil mobile pour enregistrer votre présence.");
-      }
-    },
-    isMobileDevice() {
-      return /Mobi|Android/i.test(navigator.userAgent);
-    },
-    geoFindMe() {
-      this.locationStatus = "Locating…";
-      if (!navigator.geolocation) {
-        this.locationStatus = "La géolocalisation n'est pas supportée par votre navigateur.";
-        return;
-      }
-
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          const latitude = position.coords.latitude;
-          const longitude = position.coords.longitude;
-
-          this.locationStatus = "";
-          this.mapLinkText = `Latitude: ${latitude} °, Longitude: ${longitude} °`;
-          document.querySelector("#map-link").href = `https://www.openstreetmap.org/#map=18/${latitude}/${longitude}`;
-          this.punchInTime = new Date().toLocaleTimeString(); // Set the punch-in time
-        },
-        (error) => {
-          switch (error.code) {
-            case error.PERMISSION_DENIED:
-              this.locationStatus = "Vous avez refusé l'accès à la localisation.";
-              break;
-            case error.POSITION_UNAVAILABLE:
-              this.locationStatus = "Les informations de localisation ne sont pas disponibles.";
-              break;
-            case error.TIMEOUT:
-              this.locationStatus = "La demande de localisation a expiré.";
-              break;
-            case error.UNKNOWN_ERROR:
-              this.locationStatus = "Une erreur inconnue est survenue.";
-              break;
-          }
-        },
-        { timeout: 10000 } // Timeout après 10 secondes
-      );
-    },
-    punchOut() {
-      // Logique pour enregistrer la sortie
-    },
+  mounted() {
+    this.userStore = useUserStore();
+    this.getPunchInTime();
+    this.getPunchOutTime();
   },
+  methods: {
+    async handlePunch(action) {
+      const position = await this.geoFindMe();
+      if (position) {
+        const { latitude, longitude } = position.coords;
+        this.userCoordinates = { latitude, longitude };
+        const punchTime = new Date();
+
+        await this.checkAndSavePunch(action, latitude, longitude, punchTime);
+      }
+    },
+
+    async checkAndSavePunch(action, latitude, longitude, punchTime) {
+      try {
+        const response = await axios.get('http://localhost/GestionPersonnel/backend/employe.php?action=getCoordinates');
+        const locations = response.data.locations;
+
+        const isWithinDistance = locations.some(location => {
+          const distance = this.getDistanceFromLatLonInM(latitude, longitude, location.latitude, location.longitude);
+          return distance < 100;
+        });
+
+        if (isWithinDistance) {
+          const endpoint = action === 'in' ? 'saveEnterTime' : 'saveExitTime';
+          const saveUrl = `http://localhost/GestionPersonnel/backend/attendance.php?action=${endpoint}`;
+          const data = {
+            time: punchTime.toISOString(),
+            user_id: this.userStore.id,
+          };
+
+          try {
+            const saveResponse = await axios.post(saveUrl, data);
+            console.log(`Heure de ${action === 'in' ? 'entrée' : 'sortie'} enregistrée avec succès`, saveResponse.data);
+          } catch (error) {
+            console.error(`Erreur lors de l'enregistrement de l'heure de ${action === 'in' ? 'entrée' : 'sortie'}:`, error);
+          }
+        } else {
+          console.log('Hors de portée de 100 mètres');
+        }
+      } catch (error) {
+        console.error('Erreur lors de la vérification ou de l\'enregistrement:', error);
+      }
+    },
+
+    geoFindMe() {
+      return new Promise((resolve, reject) => {
+        const status = document.querySelector("#status");
+        const mapLink = document.querySelector("#map-link");
+        mapLink.href = "";
+        mapLink.textContent = "";
+
+        const success = (position) => {
+          resolve(position);
+        };
+
+        const error = (error) => {
+          console.error("Erreur de géolocalisation :", error);
+          status.textContent = "Erreur de géolocalisation. Vérifiez vos paramètres.";
+          reject(error);
+        };
+
+        if (!navigator.geolocation) {
+          status.textContent = "La géolocalisation n'est pas supportée par votre navigateur.";
+          reject(new Error("Géolocalisation non supportée"));
+        } else {
+          navigator.geolocation.getCurrentPosition(success, error);
+        }
+      });
+    },
+
+    getDistanceFromLatLonInM(lat1, lon1, lat2, lon2) {
+      const R = 6371e3; // Rayon de la Terre en mètres
+      const φ1 = lat1 * Math.PI / 180;
+      const φ2 = lat2 * Math.PI / 180;
+      const Δφ = (lat2 - lat1) * Math.PI / 180;
+      const Δλ = (lon2 - lon1) * Math.PI / 180;
+
+      const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) +
+        Math.cos(φ1) * Math.cos(φ2) *
+        Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+      return R * c; // Distance en mètres
+    }, 
+
+    getPunchInTime() {
+      this.$axios
+        .post("attendance.php?action=getPunchInTime", { user_id: this.userStore.id })
+        .then((res) => {
+          if (!res.data.error) {
+            this.punchInTime = res.data.punchInTime; 
+          } else {
+            console.error("Erreur :", res.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur réseau :", error);
+        });
+    },
+
+    getPunchOutTime() {
+      this.$axios
+        .post("attendance.php?action=getPunchOutTime", { user_id: this.userStore.id })
+        .then((res) => {
+          if (!res.data.error) {
+            this.punchOutTime = res.data.punchOutTime; 
+          } else {
+            console.error("Erreur :", res.data.message);
+          }
+        })
+        .catch((error) => {
+          console.error("Erreur réseau :", error);
+        });
+    },
+
+  }
 };
 </script>

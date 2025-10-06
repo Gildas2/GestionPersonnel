@@ -8,7 +8,7 @@
                     </div>
                     <div class="col-auto float-end ms-auto">
                         <a class="btn add-btn" data-bs-toggle="modal" @click="openModal('add')"
-                            data-bs-target="#add_leave"><i class="fa-solid fa-plus"></i>Ajouter une permission</a>
+                            data-bs-target="#add_leave"><i class="fa-solid fa-plus"></i>Demander une permission</a>
                     </div>
                 </div>
             </div>
@@ -235,38 +235,35 @@
                 </div>
             </div>
         </div>
-        
-        <div id="center-modal" class="modal fade" tabindex="-1" role="dialog" aria-hidden="true">
-            <div class="modal-dialog modal-sm modal-dialog-centered">
-                <div class="modal-content">
-                    <div class="modal-body">
-                        <div class="text-center">
-                            <p>{{ modalMessage }}</p>
-                            <a  href="javascript:void(0);" class="btn btn-primary btn-sm" data-bs-dismiss="modal">Fermer</a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
 
+        <Modal :popupMessage="popupMessage" :show="isModalVisible" @close="isModalVisible = false"/>
+
+        <!-- Utilisation de ModalHandler -->
+        <ModalHandler ref="modalHandler" />
+    </div>
 </template>
 
 <script>
+import Modal from './modal.vue';
+import ModalHandler from './modalHandler.vue';
 export default {
     name: "leaves",
+    components : {
+        Modal, 
+        ModalHandler
+    },
     data() {
         return {
             date: null,
             Leave: {
                 id: "",
                 employeId: "",
-                leaveType: "",
                 from: "",
                 to: "",
                 noDays: "",
                 reason: ""
             },
+            isModalVisible: false,
             leaves: [],
             employees: [],
             modalTitle: "",
@@ -274,7 +271,8 @@ export default {
             modalType: "",
             deleteLeaveId: null,
             today: new Date().toISOString().split('T')[0],
-            modalMessage: ''
+            modalMessage: '',
+            popupMessage: '', 
         }
     },
     mounted() {
@@ -283,11 +281,9 @@ export default {
     },
     methods: {
         showModal(message) {
-            this.modalMessage = message;
-            const modal = new bootstrap.Modal(document.getElementById('center-modal'));
-            modal.show();
+            this.popupMessage = message;
+            this.isModalVisible = true;
         },
-
         formatDate(date) {
             const options = { day: 'numeric', month: 'short', year: 'numeric' };
             const formattedDate = new Date(date).toLocaleDateString('fr-FR', options);
@@ -335,7 +331,7 @@ export default {
             } else if (type === "add") {
                 this.modalTitle = "Ajouter une permission";
                 this.modalButton = "Ajouter";
-                this.Leave = { id: null, employeId: "", leaveType: "", from: "", to: "", noDays: "", reason: "" };
+                this.Leave = { id: null, employeId: "", from: "", to: "", noDays: "", reason: "" };
             }
         },
         fetchSingleLeave(id) {
@@ -349,7 +345,6 @@ export default {
                         this.Leave = {
                             id: res.data.data.id,
                             employeId: res.data.data.employe_id,
-                            leaveType: res.data.data.type,
                             from: res.data.data.from,
                             to: res.data.data.to,
                             noDays: res.data.data.numberOfDay,
@@ -366,7 +361,6 @@ export default {
         submitLeave() {
             const data = new FormData();
             data.append("employeId", this.Leave.employeId);
-            data.append("leaveType", this.Leave.leaveType);
             data.append("from", this.Leave.from);
             data.append("to", this.Leave.to);
             data.append("noDays", this.Leave.noDays);
@@ -378,7 +372,8 @@ export default {
                 this.$axios.post("leave.php?action=addLeave", data)
                     .then((res) => {
                         if (!res.data.error) {
-                            alert("Absence ajoutée avec succès:", res.data);
+                            this.$refs.modalHandler.closeModal('add_leave');
+                            this.showModal("Absence ajoutée avec succès");
                             this.listLeaves();
                         } else {
                             console.error("Erreur lors de l'ajout de l'absence:", res.data.message);
@@ -387,10 +382,12 @@ export default {
                     .catch((error) => {
                         console.error("Il y a une erreur lors de l'ajout de l'absence:", error);
                     });
+
             } else if (this.modalType === "edit") {
                 this.$axios.post("leave.php?action=updateLeave", data)
                     .then((res) => {
                         if (!res.data.error) {
+                            this.$refs.modalHandler.closeModal('add_leave');
                             this.showModal("Absence mise à jour avec succès:", res.data);
                             this.listLeaves();
                         } else{
@@ -421,13 +418,9 @@ export default {
         deleteLeave() {
             this.$axios.get(`leave.php?action=deleteLeave&id=${this.deleteLeaveId}`)
                 .then((res) => {
-                    if (!res.data.error) {   
-                        const deleteModal = bootstrap.Modal.getInstance(document.getElementById('delete_approve'));
-                        if (deleteModal) {
-                            deleteModal.hide();
-                        }
-
-                        this.showModal("Absence supprimée avec succès:", res.data);
+                    if (!res.data.error) { 
+                        this.$refs.modalHandler.closeModal('delete_approve');   
+                        this.showModal("Absence supprimée avec succès");                     
                         this.listLeaves();
                     } else {
                         console.error("Erreur lors de la suppression de l'absence:", res.data.message);
@@ -450,9 +443,9 @@ export default {
                         if (leave) {
                             leave.status = status;
                         }
-                        alert('Statut mis à jour avec succès');
+                        this.showModal('Statut mis à jour avec succès');
                     } else {
-                        alert('Erreur lors de la mise à jour du statut : ' + res.data.message);
+                        this.showModal('Erreur lors de la mise à jour du statut : ' + res.data.message);
                     }
                 })
                 .catch(error => {

@@ -3,6 +3,7 @@
     <Header></Header>
     <Sidebar /> 
   </div>
+
 </template>
 <script>
 import { defineComponent, computed } from "vue";
@@ -14,29 +15,13 @@ export default defineComponent({
   name: "Dashboard",
   components: {
     Sidebar,
-    Header
+    Header, 
   },
   setup() {
     const userStore = useUserStore();
 
-    // Propriété calculée pour déterminer ce qu'il faut afficher
-    const displayName = computed(() => {
-      if (userStore.role === "admin") {
-        return userStore.role;
-      } else if (userStore.role === "employe") {
-        return `${userStore.firstname} ${userStore.lastname}`;
-      } 
-    });
-
-    // Fonction de déconnexion
-    const logout = () => {
-      userStore.logout();
-    };
-
     return {
-      displayName,
       userStore,
-      logout,
     };
   },
 });

@@ -365,12 +365,23 @@
         </div>
       </div>
     </div>
+
+    <Modal :popupMessage="popupMessage" :show="isModalVisible" @close="isModalVisible = false"/>
+
+    <!-- Utilisation de ModalHandler -->
+    <ModalHandler ref="modalHandler" />
   </div>
 </template>
 
 <script>
+import Modal from './modal.vue';
+import ModalHandler from './modalHandler.vue';
 export default {
   name: "paysrool",
+  components : {
+    Modal, 
+    ModalHandler
+  },
   data() {
     return {
       addition: {
@@ -406,7 +417,9 @@ export default {
       deductions: [],
       deleteAdditionId: null,
       deleteOvertimeId: null,
-      deleteDeductionId: null
+      deleteDeductionId: null,
+      popupMessage: '',
+      isModalVisible: false
     };
   },
   mounted() {
@@ -416,6 +429,10 @@ export default {
     this.listDeductions();
   },
   methods: {
+    showModal(message) {
+      this.popupMessage = message;
+      this.isModalVisible = true;
+    },
     getEmployees() {
       this.$axios.get("employe.php?action=getEmployees")
         .then((res) => {
@@ -428,10 +445,6 @@ export default {
         .catch((error) => {
           console.error("Il y a une erreur!", error);
         });
-    },
-    closeModal(modalId) {
-      const modal = new bootstrap.Modal(document.getElementById(modalId));
-      modal.hide();
     },
     openModal0(type, id = null) {
       this.modalType0 = type;
@@ -482,7 +495,8 @@ export default {
         )
           .then((res) => {
             if (!res.data.error) {
-              alert("Addition ajoutée avec succès");
+              this.$refs.modalHandler.closeModal('add_addition');
+              this.showModal("Addition ajoutée avec succès");
               this.listAdditions();
               this.addition = { id: "", employeId: "", reason: "", amount: "" };
               this.closeModal(add_addition);
@@ -500,7 +514,8 @@ export default {
         )
           .then((res) => {
             if (!res.data.error) {
-              alert("Addition mise à jour avec succès");
+              this.$refs.modalHandler.closeModal('add_addition');
+              this.showModal("Addition mise à jour avec succès");
               this.addition = { id: "", employeId: "", reason: "", amount: "" };
               this.listAdditions();
             } else {
@@ -550,7 +565,8 @@ export default {
       )
         .then((res) => {
           if (!res.data.error) {
-            alert("Addition supprimée avec succès");
+            this.$refs.modalHandler.closeModal('delete_addition');
+            this.showModal("Addition supprimée avec succès");
             this.listAdditions();
             this.deleteAdditionId = null;
           } else {
@@ -592,7 +608,8 @@ export default {
         )
           .then((res) => {
             if (!res.data.error) {
-              alert("Heure supp. ajoutée avec succès");
+              this.$refs.modalHandler.closeModal('add_overtime');           
+              this.showModal("Heure supp. ajoutée avec succès");
               this.listOvertimes();
               this.overtime = { id: "", employeId: "", hour: "", amount: "" };
             } else {
@@ -609,7 +626,8 @@ export default {
         )
           .then((res) => {
             if (!res.data.error) {
-              alert("Heure supp. mise à jour avec succès");
+              this.$refs.modalHandler.closeModal('add_overtime');
+              this.showModal("Heure supp. mise à jour avec succès");
               this.overtime = { id: "", employeId: "", hour: "", amount: "" };
               this.listOvertimes();
             } else {
@@ -662,7 +680,8 @@ export default {
       )
         .then((res) => {
           if (!res.data.error) {
-            alert("heure supp. supprimée avec succès");
+            this.$refs.modalHandler.closeModal('delete_overtime');
+            this.showModal("heure supp. supprimée avec succès");
             this.listOvertimes();
             this.deleteOvertimeId = null;
           } else {
@@ -704,7 +723,8 @@ export default {
         )
           .then((res) => {
             if (!res.data.error) {
-              alert("Déduction ajoutée avec succès");
+              this.$refs.modalHandler.closeModal('add_deduction');
+              this.showModal("Déduction ajoutée avec succès");
               this.listDeductions();
               this.deduction = { id: "", employeId: "", reason: "", amount: "" };
             } else {
@@ -721,7 +741,8 @@ export default {
         )
           .then((res) => {
             if (!res.data.error) {
-              alert("Déduction mise à jour avec succès");
+              this.$refs.modalHandler.closeModal('add_deduction');
+              this.showModal("Déduction mise à jour avec succès");
               this.deduction = { id: "", employeId: "", reason: "", amount: "" };
               this.listDeductions();
             } else {
@@ -774,8 +795,9 @@ export default {
       )
         .then((res) => {
           if (!res.data.error) {
+            this.$refs.modalHandler.closeModal('delete_deduction');
+            this.showModal("Déduction supprimée avec succès");
             this.listDeductions();
-            this.closeModal('delete_deduction');
           } else {
             console.error("Erreur", res.data.message);
           }
